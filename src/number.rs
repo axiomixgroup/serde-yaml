@@ -536,15 +536,13 @@ impl From<f64> for Number {
     }
 }
 
-// This is fine, because we don't _really_ implement hash for floats
-// all other hash functions should work as expected
+// This is fine, because we rely on ordered floats for hash.
 #[allow(clippy::derived_hash_with_manual_eq)]
 impl Hash for Number {
     fn hash<H: Hasher>(&self, state: &mut H) {
         match self.n {
-            N::Float(_) => {
-                // you should feel bad for using f64 as a map key
-                3.hash(state);
+            N::Float(f) => {
+                ordered_float::OrderedFloat(f).hash(state);
             }
             N::PosInt(u) => u.hash(state),
             N::NegInt(i) => i.hash(state),
